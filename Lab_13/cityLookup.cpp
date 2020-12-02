@@ -12,7 +12,14 @@ struct City {
     string name;
     string fips;
     int population;
-
+    
+    City() {
+        ID = "";
+        name = "";
+        fips = "";
+        population = 0;
+    }
+    
     City(string id, string n, string f, int p) {
         ID = id;  
         name = n;
@@ -21,9 +28,11 @@ struct City {
     }
 };
 
-std::istream& operator>>(std::istream& str, CSVRow& data) {
-    data.readNextRow(str);
-    return str;
+std::ostream& operator<<(std::ostream& os, const City& a) {
+  os << "stateid: " << a.ID << " // city: " << a.name
+     << " // fips: " << a.fips << " // population: " << a.population
+     << std::endl;
+  return os;
 }
 
 int main() {
@@ -35,12 +44,25 @@ int main() {
 
     if (!file.fail()) {
         // declare an STL map that use a pairing of string, City
-        // todo add code here
+        City places[500];
+        map<string, City> cities;
 
         CSVRow row;
+        int index = 0;
         while (file >> row) {
             // insert city record into map
-            // add code here
+            places[index] = City(row[0], row[1], row[2], stoi(row[3]));
+            cities.insert( pair<string, City>(row[2], places[index]) );
+            index++;
+        }
+
+        //https://www.geeksforgeeks.org/map-insert-in-c-stl/
+        //date found: 12/2/2020
+        // used this to see how it was being/if stored.
+        // also made it easier to test the look up.
+        cout << "KEY\tELEMENT\n";
+        for (auto itr = cities.begin(); itr != cities.end(); ++itr) {
+            cout << itr->first << "\t" << itr->second << "\n";
         }
 
         // input key ( fips ) to lookup
@@ -48,9 +70,15 @@ int main() {
         cin >> fips;
         cout << endl;
 
-        // find, retrieve and output city info basedon key ( fips )
-        // todo : add code here
-        
+        // find, retrieve and output city info based on key ( fips )
+        auto theOne = cities.find(fips);
+        if(theOne == cities.end()) {
+            cout << "The fips id was not found!!!" << endl; 
+        } else {
+            cout << "The City has been found : " 
+                 << theOne->first << " // " << theOne->second ; 
+        }
     }
+        
     return 0;
 }
